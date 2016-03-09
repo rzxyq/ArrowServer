@@ -26,6 +26,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'djtwilio.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^$', home, name='home'),
+    url(r'^phoneAuth/', phoneAuth),
+
     url(r'^admin/', include(admin.site.urls)),
  
     # Here we add our Twilio URLs
