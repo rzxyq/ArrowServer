@@ -18,6 +18,7 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
  
 from django.contrib import admin
+from .views import *
 admin.autodiscover()
  
 urlpatterns = patterns('',
@@ -28,6 +29,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
  
     # Here we add our Twilio URLs
-    url(r'^sms/$', 'djtwilio.views.sms'),
-    url(r'^ring/$', 'djtwilio.views.ring'),
+    url(r'^sms/$', sms),
+    # url(r'^ring/$', 'djtwilio.views.ring'),
 )
