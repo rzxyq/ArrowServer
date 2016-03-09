@@ -1,1 +1,1 @@
-web: gunicorn --log-file=- lgc.wsgi:application
+web: gunicorn --log-file=- arrowserver.wsgi:application
