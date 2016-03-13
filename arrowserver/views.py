@@ -48,7 +48,7 @@ def phoneAuth(request):
     request format:
     url = 'localhost:8000'
     data = json.dumps({
-        'num': +16072629422
+        'num': +16072629999
     })
     '''
     if request.method == 'POST':

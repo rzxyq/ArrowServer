@@ -119,8 +119,6 @@ USE_TZ = True
 
 
 #twilio
-TWILIO_ACCOUNT_SID='AC58449a541e712acc4e344694f8127944'
-TWILIO_ACCOUNT_TOKEN='abf65c05160dbcc214a87ea7867789bf'
 #use env variable for security
 
 
