@@ -1,7 +1,7 @@
 import json
 import requests
 
-data=json.dumps({'num':19146109496})
+data=json.dumps({'num':16073797896})
 url='https://arrowapplication.herokuapp.com/phoneAuth/'
 url2='http://localhost:8000/phoneAuth/'
 
