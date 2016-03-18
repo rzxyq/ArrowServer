@@ -35,8 +35,10 @@ def home(request):
 # check the phone number is a valid phone
 # return true if the number is valid, false otherwise
 def phone_number_valid(phone_number):
-    matchObj = re.match( r'^\+[0-9]{11}$', phone_number, )
+    phone_number = str(phone_number)
+    matchObj = re.match( r'^[0-9]{11}$', phone_number, )
     if matchObj is None:
+        matchObj = re.match( r'^[0-9]{11}$', phone_number, )
         print(phone_number, "is not valid")
         return False
     else:
@@ -48,11 +50,10 @@ def phoneAuth(request):
     request format:
     url = 'localhost:8000'
     data = json.dumps({
-        'num': +16072629999
+        'num': 16072629999
     })
     '''
     if request.method == 'POST':
-        import ipdb; ipdb.set_trace()
         try:
             data = json.loads(request.body.decode('utf-8'))
             num=data['num']
