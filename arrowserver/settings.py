@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #third party apps
-    'django_twilio'
+    'django_twilio',
+    'arrowauth'
 ]
 
 MIDDLEWARE_CLASSES = [

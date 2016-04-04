@@ -16,23 +16,10 @@ Including another URLconf
 """
  
 from django.conf.urls import patterns, include, url
- 
-from django.contrib import admin
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
-
-admin.autodiscover()
  
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'djtwilio.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    url(r'^$', home, name='home'),
-    url(r'^auth/', include('arrowauth.urls')),
-
-    url(r'^admin/', include(admin.site.urls)),
- 
-    # Here we add our Twilio URLs
-    url(r'^sms/$', sms),
-    # url(r'^ring/$', 'djtwilio.views.ring'),
+urlpatterns = patterns(
+    url(r'^phoneAuth/', csrf_exempt(phoneAuth), name='phoneAuth'),
+    url(r'^dataAuth/', csrf_exempt(dataAuth), name='dataAuth'),
 )
