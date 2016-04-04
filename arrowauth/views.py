@@ -87,6 +87,10 @@ def phoneAuth(request):
             return JsonResponse({
                 'error': 'User already exists'
                 })
+        if user.password != password:
+            return JsonResponse({
+                'error': 'Password incorrect'
+                })
         token = create_user(num)
 
         return JsonResponse({
@@ -100,14 +104,17 @@ def phoneAuth(request):
 
 def create_user(num, password):
     '''create user in heroku database
-    if user already exists return token without saving
-    return firebase token'''
+    if user already exists(and password correct) return token without saving
+    if password incorrect return false
+    else save and return firebase token'''
     uid = num+password
     # auth_payload = {"uid": uid, "auth_data": "foo", "other_auth_data": "bar"}
     auth_payload = {"uid": uid}
     token = create_token(FIREBASE_SECRET, auth_payload)
 
     user = User.objects.get(num=num)
+    if user.password != password:
+        return False
     if user != None:
         return token
     user = User(num=num, password=password)
