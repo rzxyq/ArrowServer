@@ -96,7 +96,7 @@ def phoneAuth(request):
 
         client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
         # body = "Hello there! Here's your authentication code: %s" % (authCode)
-        # message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
+        message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
         
 
         #generate firebase token
