@@ -19,7 +19,8 @@ from django.conf.urls import patterns, include, url
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
  
-urlpatterns = patterns(
-    url(r'^phoneAuth/', csrf_exempt(phoneAuth), name='phoneAuth'),
-    url(r'^dataAuth/', csrf_exempt(dataAuth), name='dataAuth'),
-)
+urlpatterns = [
+    # url(r'^$', home, name='home2'),
+    url(r'^phoneAuth/$', csrf_exempt(phoneAuth), name='phoneAuth'),
+    url(r'^dataAuth/$', csrf_exempt(dataAuth), name='dataAuth'),
+]

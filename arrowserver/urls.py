@@ -28,7 +28,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'djtwilio.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^$', home, name='home'),
-    url(r'^auth/', include('arrowauth.urls')),
+    url(r'^arrowauthapi/', include('arrowauthapi.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
  

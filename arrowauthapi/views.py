@@ -10,13 +10,14 @@ import os
 import re
 from firebase_token_generator import create_token
 from .models import User
+from .secrets import *
 
-TWILIO_NUMBER = "+16072755281"
-AUTH_CODE_MIN = 100000
-AUTH_CODE_MAX = 999999
-FIREBASE_SECRET = 'dPtWEfzHlPEkOiINcxtcInKHunEHFrLJhShnsWzy'
-ACCOUNT_SID = 'ACfb15e6282b3e9c65b4c9fb5be5b5e179'
-AUTH_TOKEN = 'e39388e8ef81d00a4e81466d4f76b69a'
+def home(request):
+    context = {    
+        'request' : request,   
+    }
+    return render(request, 'home.html', context)
+
 
 # check the phone number is a valid phone
 # return true if the number is valid, false otherwise
@@ -41,17 +42,34 @@ def dataAuth(request):
         'password': 1kfsd.2349f
     })
     '''
-    token = create_user(num,password)
-    return token
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            num=data['num']
+            num = str(num)
+            password=data['password']
+        except:
+            return JsonResponse({
+                'error': 'Incorrect formet for phoneAuth. Must have "num" and "password" attribute'
+                })
 
-@csrf_exempt
+        token = create_user(num,password)
+        if token==False:
+            return JsonResponse({
+            'error': 'Password incorrect'
+            })
+        return JsonResponse({
+                    'token': token
+                })
+
+
 def phoneAuth(request):
     '''
     request format:
     url = 'localhost:8000'
     data = json.dumps({
-        'num': 16072629999
-        'password': afksjdh.23
+        'num': 16072629432,
+        'password': 'abc123'
     })
     '''
     if request.method == 'POST':
@@ -78,26 +96,25 @@ def phoneAuth(request):
 
         client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
         # body = "Hello there! Here's your authentication code: %s" % (authCode)
-        message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
+        # message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
         
 
         #generate firebase token
-        user = User.objects.get(num=num)
-        if user != None:
+        user=None
+        try:
+            user = User.objects.get(num=num)
+        except: #if doesn't exist(thows query doesnt exist error)
+            token = create_user(num, password)
             return JsonResponse({
-                'error': 'User already exists'
-                })
-        if user.password != password:
-            return JsonResponse({
-                'error': 'Password incorrect'
-                })
-        token = create_user(num)
-
-        return JsonResponse({
-            'authCode': authCode,
-            'senderNum': num,
-            'token': token
+                'authCode': authCode,
+                'senderNum': num,
+                'token': token
             })
+        #if no error then user exists
+        return JsonResponse({
+            'error': 'User already exists'
+            })
+       
     return render(request, 'home.html')
 
     # return HttpResponse(twiml, content_type='text/xml')
@@ -112,12 +129,13 @@ def create_user(num, password):
     auth_payload = {"uid": uid}
     token = create_token(FIREBASE_SECRET, auth_payload)
 
-    user = User.objects.get(num=num)
+    user = None
+    try:
+        user = User.objects.get(num=num)
+    except:
+        user = User(num=num, password=password)
+        user.save()
+        return token
     if user.password != password:
         return False
-    if user != None:
-        return token
-    user = User(num=num, password=password)
-    user.save()
-
     return token
