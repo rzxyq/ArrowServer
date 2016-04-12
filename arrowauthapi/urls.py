@@ -20,7 +20,7 @@ from .views import *
 from django.views.decorators.csrf import csrf_exempt
  
 urlpatterns = [
-    # url(r'^$', home, name='home2'),
+    url(r'^$', apihome, name='apihome'),
     url(r'^phoneAuth/$', csrf_exempt(phoneAuth), name='phoneAuth'),
     url(r'^dataAuth/$', csrf_exempt(dataAuth), name='dataAuth'),
 ]

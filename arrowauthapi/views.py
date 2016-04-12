@@ -12,11 +12,11 @@ from firebase_token_generator import create_token
 from .models import User
 from .secrets import *
 
-def home(request):
+def apihome(request):
     context = {    
         'request' : request,   
     }
-    return render(request, 'home.html', context)
+    return render(request, 'apihome.html', context)
 
 
 # check the phone number is a valid phone
