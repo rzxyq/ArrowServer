@@ -7,6 +7,7 @@ from .models import User
 from .views import *
 from django.utils import timezone
 import datetime
+import base64
 
 import json
 
@@ -21,6 +22,8 @@ class HomePageTest(TestCase):
         response = apihome(request)
         expected_html = render_to_string('apihome.html')
         self.assertEqual(response.content.decode(), expected_html)
+
+
 
 class UserModelsTest(TestCase):
     # python manage.py shell
@@ -44,106 +47,45 @@ class UserModelsTest(TestCase):
         u2.save()
         self.assertEqual(User.objects.count(), 2)
 
-class EdaViewTest(TestCase):
-    def test_display_all_items(self):
+class PhoneAuthViewTest(TestCase):
+    def test_create_user(self):
+        #test user not exists before but create now
+        value = create_user('16072629433', 'a11fsdf111')
+        self.assertNotEqual(value, None)
+        self.assertEqual(User.objects.count(), 1)
+
+
+        u = User(num='16072629422', username='ruoyan', password='abc123')
+        u.save()
+
+        #test password incorrect
+        value = create_user('16072629422', 'a11111')
+        self.assertEqual(value, None)
+
+        #test password correct and user exists
+        value = create_user('16072629422', 'abc123')
+        uid = '16072629422'+'abc123'
+        uid = base64.b64encode(uid.encode())
+        uid = uid.decode() #byte back to string
+        auth_payload = {"uid": uid}
+        token = create_token(FIREBASE_SECRET, auth_payload)
+        self.assertEqual(value, token)
+
+    def test_get(self):
         #dummy test
-        response = self.client.get('/data/results/')
-        self.assertContains(response, 'successful')
+        response = self.client.get('/arrowauthapi/phoneAuth/')
+        self.assertContains(response, 'To user our api please send a post request')
         self.assertNotContains(response, 'debug')
-
-        #test eda value view
-        response = self.client.get('/data/eda_view/')
-        self.assertContains(response, 'EDA')
-        self.assertNotContains(response, 'debug')
-
-        #test frequency value view
-        response = self.client.get('/data/frequency_view/')
-        self.assertContains(response, 'Frequency')
-        self.assertNotContains(response, 'debug')
-
-        #test sums value view
-        response = self.client.get('/data/sums_view/')
-        self.assertContains(response, 'Sum')
-        self.assertNotContains(response, 'debug')
-
-                #test average value view
-        response = self.client.get('/data/mean_view/')
-        self.assertContains(response, 'Mean')
-        self.assertNotContains(response, 'debug')
-
-
-    # def test_uses_list_template(self):
-    #     list_ = List.objects.create()
-    #     response = self.client.get('/lists/%d/' % (list_.id))
-    #     self.assertTemplateUsed(response, 'list.html')
-
-
-# class PostDataTest(TestCase):
-#     def test_can_save_POST_request(self):
-#         from django.utils import timezone
-
-#         #test trial auto create
-#         l='C,0.24,0.87,0.64,3.95,32.6,0.167'
-#         data_array = l.split(",")
-#         if (data_array[0] == 'C' or data_array[0] == 'c'): 
-#             data_array[0] = 10 # Modify for 10's 
-#         data = json.dumps({
-#             'data': l, # Text-based data
-#             'seconds': data_array[0],
-#             'x_coord': data_array[1],
-#             'y_coord': data_array[2],
-#             'z_coord': data_array[3],
-#             'unknown': data_array[4],
-#             'temp': data_array[5],
-#             'eda': data_array[6],
-#             'trial': 299
-#         })
-#         self.client.post(
-#             '/data/post_data/',
-#             content_type='application/json',
-#             data = data
-#         )
-
-#         self.assertEqual(Data.objects.count(), 1)
-#         new_data = Data.objects.first()
-#         self.assertEqual(new_data.eda, 0.167)
-#         self.assertEqual(Trial.objects.count(), 1)
-#         self.assertEqual(Trial.objects.first().num, '299')
-
-#         #test applying to same trial
-#         data = json.dumps({
-#             'data': '0,0.24,0.87,0.64,3.95,40,0.100', # Text-based data
-#             'seconds': data_array[0],
-#             'x_coord': data_array[1],
-#             'y_coord': data_array[2],
-#             'z_coord': data_array[3],
-#             'unknown': data_array[4],
-#             'temp': 40,
-#             'eda': 0.100,
-#             'trial': 299
-#         })
-#         self.client.post(
-#             '/data/post_data/',
-#             content_type='application/json',
-#             data = data
-#         )
-#         self.assertEqual(Trial.objects.count(), 1)
-#         self.assertEqual(Trial.objects.first().num, '299')
-#         t = Trial.objects.filter(num=299)[0]
-#         filtered_d = t.data_set.filter(eda=0.100)[0]
-#         self.assertEqual(filtered_d.temp, 40)
-#         self.assertEqual(t.data_set.count(), 2)
-
-
-
-
-
-
-    # def test_redirects_after_POST(self):
-    #     response = self.client.post(
-    #         '/lists/new',
-    #         data={'item_text': 'A new list item'}
-    #     )
-    #     new_list = List.objects.first()
-    #     self.assertRedirects(response, '/lists/%d/' % (new_list.id))
-
+    def test_post(self):
+        data = json.dumps({
+        'num': '16072629422',
+        'password': 'abc123'
+        })
+        self.client.post(
+            '/arrowauthapi/phoneAuth/',
+            content_type='application/json',
+            data = data
+        )
+        self.assertEqual(User.objects.count(), 1)
+        new_data = User.objects.first()
+        self.assertEqual(new_data.num, '16072629422')

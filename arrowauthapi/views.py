@@ -11,6 +11,7 @@ import re
 from firebase_token_generator import create_token
 from .models import User
 from .secrets import *
+import base64
 
 def apihome(request):
     context = {    
@@ -54,7 +55,7 @@ def dataAuth(request):
                 })
 
         token = create_user(num,password)
-        if token==False:
+        if token==None:
             return JsonResponse({
             'error': 'Password incorrect'
             })
@@ -72,6 +73,10 @@ def phoneAuth(request):
         'password': 'abc123'
     })
     '''
+    if request.method == 'GET':
+        return JsonResponse({
+            'error': 'To user our api please send a post request'
+            })
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -122,9 +127,11 @@ def phoneAuth(request):
 def create_user(num, password):
     '''create user in heroku database
     if user already exists(and password correct) return token without saving
-    if password incorrect return false
+    if password incorrect return None
     else save and return firebase token'''
     uid = num+password
+    uid = base64.b64encode(uid.encode())
+    uid = uid.decode() #byte back to string
     # auth_payload = {"uid": uid, "auth_data": "foo", "other_auth_data": "bar"}
     auth_payload = {"uid": uid}
     token = create_token(FIREBASE_SECRET, auth_payload)
@@ -137,5 +144,5 @@ def create_user(num, password):
         user.save()
         return token
     if user.password != password:
-        return False
+        return None
     return token
