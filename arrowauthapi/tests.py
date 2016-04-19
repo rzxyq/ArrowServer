@@ -105,13 +105,30 @@ class LoginViewTest(TestCase):
         self.assertEqual(new_data.num, '16072755281')
 
     def test_login(self):
-        u = User(num='16072755281', username='ruoyan', password='abc123')
+        #test user doesn't exist
+        data = json.dumps({
+        'num': '16072629422',
+        'username': '',
+        'password': 'abc123',
+        'loginMethod': 'phone'
+        })
+        result = self.client.post(
+            '/arrowauthapi/login/',
+            content_type='application/json',
+            data = data
+        )
+        result = json.loads(result.content.decode())
+        error = result['error']
+        self.assertEqual(error, 'User doesnt exist yet')
+
+
+        u = User(num='16072629422', username='ruoyan', password='abc123')
         u.save()
         self.assertEqual(User.objects.count(), 1)
 
         #test phone login
         data = json.dumps({
-        'num': '16072755281',
+        'num': '16072629422',
         'username': '',
         'password': 'abc123',
         'loginMethod': 'phone'
@@ -124,7 +141,7 @@ class LoginViewTest(TestCase):
         result = json.loads(result.content.decode())
         response_token = result['token']
         self.assertEqual(User.objects.count(), 1)
-        uid = '16072755281'+'abc123'
+        uid = '16072629422'+'abc123'
         uid = base64.b64encode(uid.encode())
         uid = uid.decode() #byte back to string
         auth_payload = {"uid": uid}

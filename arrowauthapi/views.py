@@ -110,30 +110,38 @@ def phoneAuth(request):
             data = json.loads(request.body.decode('utf-8'))
             num=data['num']
             num = str(num)
-            password=data['password']
         except:
             return JsonResponse({
                 'error': 'Incorrect formet for phoneAuth. Must have "num" attribute'
                 })
 
-        #twilio
-        if not phone_number_valid(num):
+        #check if user already exists
+        try:
+            user = User.objects.get(num=num)
+        except: #if doesn't exist
+            #twilio
+            if not phone_number_valid(num):
+                return JsonResponse({
+                    'error': 'Invalid phone number'
+                    })
+            authCode = random.randrange(AUTH_CODE_MIN, AUTH_CODE_MAX)
+            body = "Hello from Arow! Your authentication code is: "+str(authCode)
+
+            # ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+            # AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+
+            client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+            # body = "Hello there! Here's your authentication code: %s" % (authCode)
+            message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
             return JsonResponse({
-                'error': 'Invalid phone number'
+                    'authCode': authCode,
+                    'senderNum': num,
                 })
-        authCode = random.randrange(AUTH_CODE_MIN, AUTH_CODE_MAX)
-        body = "Hello from Arow! Your authentication code is: "+str(authCode)
-
-        # ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
-        # AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
-
-        client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
-        # body = "Hello there! Here's your authentication code: %s" % (authCode)
-        message = client.messages.create(body=body, to=str(num), from_=TWILIO_NUMBER)
+        # if no error then user already exists
         return JsonResponse({
-                'authCode': authCode,
-                'senderNum': num,
-            })
+        'error': 'User already exists'
+        })
+
     # return HttpResponse(twiml, content_type='text/xml')
 
     return JsonResponse({
