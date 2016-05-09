@@ -12,6 +12,7 @@ from firebase_token_generator import create_token
 from .models import User
 from .secrets import *
 import base64
+from push_notifications.models import APNSDevice, GCMDevice
 
 def apihome(request):
     context = {    
@@ -125,7 +126,7 @@ def phoneAuth(request):
                     'error': 'Invalid phone number'
                     })
             authCode = random.randrange(AUTH_CODE_MIN, AUTH_CODE_MAX)
-            body = "Hello from Arow! Your authentication code is: "+str(authCode)
+            body = "Hello from Arrow! Your authentication code is: "+str(authCode)
 
             # ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
             # AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
@@ -201,3 +202,81 @@ def create_user(num, username, password):
     if user.password != password:
         return None
     return token
+
+def username_exists(username):
+    try:
+        user = User.objects.get(username=username)
+    except:
+        return False
+    return True
+
+def num_exists(num):
+    try:
+        user = User.objects.get(num=num)
+    except:
+        return False
+    return True
+
+def usernameExists(request):
+    '''takes 'username' and see if it exists
+    return:
+    exists: True or False
+    '''
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data['username']
+        except:
+            return JsonResponse({
+                'error': 'Incorrect formet.'
+                })
+        return JsonResponse({
+            'exists': username_exists(username)
+        })
+    return JsonResponse({
+    'error': 'To user our api please send a post request'
+    })
+
+def numExists(request):
+    '''takes 'num' and see if it exists
+    return:
+    exists: True or False
+    '''
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data['num']
+        except:
+            return JsonResponse({
+                'error': 'Incorrect formet.'
+                })
+        return JsonResponse({
+            'exists': num_exists(num)
+        })
+    return JsonResponse({
+    'error': 'To user our api please send a post request'
+    })
+
+def pushNot(request):
+    '''Takes <device_token>, <message>.
+    Effect: if success, return status and send message to device.
+    For details check https://github.com/jleclanche/django-push-notifications
+    '''
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            device_token = data['device_token']
+            message = data['message']
+        except:
+            return JsonResponse({
+                'error': 'Incorrect formet. Check documentation for usage.'
+                })
+        device = APNSDevice.objects.get(registration_id=device_token)
+        device.send_message(message, badge=1) # Alert message may only be sent as text.
+        # device.send_message(None, badge=1, extra={"foo": "bar"}) # Silent message with badge and added custom data.
+        return JsonResponse({
+            'status': success
+        })
+    return JsonResponse({
+    'error': 'To user our api please send a post request'
+    })

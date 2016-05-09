@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #third party apps
     'django_twilio',
-    'arrowauthapi'
+    'arrowauthapi',
+    "push_notifications"
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -138,7 +139,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+PUSH_NOTIFICATIONS_SETTINGS = {
+        "GCM_API_KEY": "[your api key]",
+        "APNS_CERTIFICATE": os.path.join(BASE_DIR, "arrowauthapi/ArrowPush.pem"), 
+}
 
 try:
     from .local_settings import *

@@ -24,5 +24,8 @@ urlpatterns = [
     url(r'^phoneAuth/$', csrf_exempt(phoneAuth), name='phoneAuth'),
     url(r'^login/$', csrf_exempt(login), name='login'),
     url(r'^createuser/$', csrf_exempt(createUser), name='createuser'),
+    url(r'^pushnot/$', csrf_exempt(pushNot), name='pushNot'),
+    url(r'^usernameexists/$', csrf_exempt(usernameExists), name='usernameExists'),
+    url(r'^numexists/$', csrf_exempt(numExists), name='numExists'),
 
 ]

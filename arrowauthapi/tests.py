@@ -66,6 +66,49 @@ class PhoneAuthViewTest(TestCase):
         self.assertEqual(User.objects.count(), 0)
 
 class LoginViewTest(TestCase):
+    def test_userExists(self):
+
+        ret = username_exists(username='ruoyan')
+        self.assertEqual(ret, False)
+
+        u = User(num='16072629422', username='ruoyan', password='abc123')
+        u.save()
+
+        #test number exists
+        ret = username_exists('ruoyan')
+        self.assertEqual(ret, True)
+        #test username exists
+        ret = num_exists('16072629422')
+        self.assertEqual(ret, True)
+
+        #now test with json-------------------
+        data = json.dumps({
+        'num': '16072629422',
+        'username': 'ruoyan',
+        'password': 'abc123'
+        })
+        result=self.client.post(
+            '/arrowauthapi/usernameexists/',
+            content_type='application/json',
+            data = data
+        )
+        result = json.loads(result.content.decode())
+        ret = result['exists']
+        self.assertEqual(ret, True)
+
+        data = json.dumps({
+        'username': 'ruoy',
+        })
+        result=self.client.post(
+            '/arrowauthapi/usernameexists/',
+            content_type='application/json',
+            data = data
+        )
+        result = json.loads(result.content.decode())
+        ret = result['exists']
+        self.assertEqual(ret, False)
+
+
     def test_create_user(self):
         #test user not exists before but create now
         value = create_user('16072629433', 'ben123','a11fsdf111')
